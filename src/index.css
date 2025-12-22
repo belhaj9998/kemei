@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 340 30% 98%;
+    --foreground: 340 40% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 340 40% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 340 40% 15%;
+
+    --primary: 340 75% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 340 40% 95%;
+    --secondary-foreground: 340 75% 45%;
+
+    --muted: 340 20% 94%;
+    --muted-foreground: 340 20% 45%;
+
+    --accent: 340 80% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 340 30% 90%;
+    --input: 340 30% 90%;
+    --ring: 340 75% 55%;
+
+    --radius: 1rem;
+
+    /* Custom colors */
+    --rose-soft: 340 60% 96%;
+    --rose-light: 340 65% 90%;
+    --rose-medium: 340 70% 75%;
+    --rose-dark: 340 75% 45%;
+    --fuchsia: 330 80% 50%;
+    --fuchsia-light: 330 75% 65%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(340 65% 96%) 0%, hsl(340 70% 92%) 50%, hsl(340 75% 88%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(340 75% 55%) 0%, hsl(330 80% 50%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(340 60% 98%) 100%);
+    --gradient-glow: radial-gradient(circle at center, hsl(340 75% 55% / 0.3) 0%, transparent 70%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 30px hsl(340 75% 55% / 0.1);
+    --shadow-medium: 0 10px 40px hsl(340 75% 55% / 0.15);
+    --shadow-glow: 0 0 60px hsl(340 75% 55% / 0.3);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 340 30% 8%;
+    --foreground: 340 20% 95%;
+
+    --card: 340 30% 12%;
+    --card-foreground: 340 20% 95%;
+
+    --popover: 340 30% 12%;
+    --popover-foreground: 340 20% 95%;
+
+    --primary: 340 75% 60%;
+    --primary-foreground: 340 30% 8%;
+
+    --secondary: 340 30% 18%;
+    --secondary-foreground: 340 20% 95%;
+
+    --muted: 340 30% 18%;
+    --muted-foreground: 340 20% 65%;
+
+    --accent: 340 80% 65%;
+    --accent-foreground: 340 30% 8%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 340 30% 20%;
+    --input: 340 30% 20%;
+    --ring: 340 75% 60%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-tajawal;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 3s ease-in-out infinite;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.8s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.6s ease-out forwards;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(-5deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
