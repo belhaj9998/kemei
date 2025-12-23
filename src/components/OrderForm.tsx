@@ -16,12 +16,23 @@ const OrderForm = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'phone') {
+      // Only allow digits, max 10 characters, must start with 09
+      const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setFormData((prev) => ({ ...prev, [name]: digitsOnly }));
+    } else if (name === 'city') {
+      // Only allow Arabic/English letters and spaces
+      const lettersOnly = value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: lettersOnly }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.phone.trim() || !formData.city.trim()) {
       toast({
         title: "خطأ",
@@ -32,16 +43,43 @@ const OrderForm = () => {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "تم استلام طلبك بنجاح! ✓",
-        description: "سنتواصل معك قريباً لتأكيد الطلب",
+
+    try {
+      const response = await fetch('http://localhost:3001/webhook/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          city: formData.city,
+          page_url: window.location.href,
+          event_time: new Date().toISOString(),
+        }),
       });
-      setFormData({ name: "", phone: "", city: "" });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "تم استلام طلبك بنجاح! ✓",
+          description: "سنتواصل معك قريباً لتأكيد الطلب",
+        });
+        setFormData({ name: "", phone: "", city: "" });
+      } else {
+        throw new Error(data.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: "خطأ في الإرسال",
+        description: "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -49,7 +87,7 @@ const OrderForm = () => {
       {/* Background decorations */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-rose-200/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-fuchsia-200/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-10">
@@ -91,7 +129,8 @@ const OrderForm = () => {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="05XXXXXXXX"
+                  placeholder="09XXXXXXXX"
+                  maxLength={10}
                   value={formData.phone}
                   onChange={handleChange}
                   className="h-12 text-right bg-background/50 border-rose-200 focus:border-rose-400 focus:ring-rose-400/20 rounded-xl"

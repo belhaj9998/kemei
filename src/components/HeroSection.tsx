@@ -46,7 +46,18 @@ const HeroSection = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'phone') {
+      // Only allow digits, max 10 characters, must start with 09
+      const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setFormData((prev) => ({ ...prev, [name]: digitsOnly }));
+    } else if (name === 'city') {
+      // Only allow Arabic/English letters and spaces
+      const lettersOnly = value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: lettersOnly }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -225,7 +236,8 @@ const HeroSection = () => {
                   <Input
                     name="phone"
                     type="tel"
-                    placeholder="رقم الهاتف"
+                    placeholder="09XXXXXXXX"
+                    maxLength={10}
                     value={formData.phone}
                     onChange={handleChange}
                     className="h-11 pr-10 text-right bg-background/50 border-rose-200 focus:border-rose-400 rounded-xl"

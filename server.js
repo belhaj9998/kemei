@@ -67,16 +67,52 @@ async function initGoogleSheets() {
         console.error('❌ Failed to initialize Google Sheets:', error.message);
     }
 }
+// Verify sheet tab exists, create if missing
+async function ensureSheetExists() {
+    try {
+        const response = await sheets.spreadsheets.get({
+            spreadsheetId: SPREADSHEET_ID,
+        });
+
+        const sheetNames = response.data.sheets.map(s => s.properties.title);
+        console.log('📋 Available sheets:', sheetNames);
+
+        if (!sheetNames.includes(SHEET_NAME)) {
+            console.log(`⚠️ Sheet "${SHEET_NAME}" not found, creating...`);
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId: SPREADSHEET_ID,
+                requestBody: {
+                    requests: [{
+                        addSheet: {
+                            properties: { title: SHEET_NAME }
+                        }
+                    }]
+                }
+            });
+            console.log(`✅ Sheet "${SHEET_NAME}" created`);
+        }
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to verify/create sheet:', error.message);
+        return false;
+    }
+}
 
 // Append order to Google Sheets
 async function appendToSheet(order) {
+    console.log('🔍 appendToSheet called, sheetsEnabled:', sheetsEnabled, 'sheets:', !!sheets);
+
     if (!sheetsEnabled || !sheets) {
+        console.log('⚠️ Sheets not enabled, skipping append');
         return false;
     }
 
     try {
+        // Verify sheet exists
+        await ensureSheetExists();
+
         // Format date for spreadsheet
-        const formattedDate = new Date(order.event_time).toLocaleString('ar-EG', {
+        const formattedDate = new Date(order.event_time).toLocaleString('en-US', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -94,20 +130,32 @@ async function appendToSheet(order) {
             order.page_url,       // Source Page
         ];
 
-        await sheets.spreadsheets.values.append({
+        const range = `${SHEET_NAME}!A:F`;
+        console.log('🔍 Appending to spreadsheetId:', SPREADSHEET_ID);
+        console.log('🔍 Sheet name:', SHEET_NAME);
+        console.log('🔍 Range:', range);
+        console.log('🔍 Row data:', rowData);
+
+        const response = await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!A:F`,
+            range: range,
             valueInputOption: 'USER_ENTERED',
             insertDataOption: 'INSERT_ROWS',
-            resource: {
+            requestBody: {
                 values: [rowData],
             },
         });
 
-        console.log('📊 Order added to Google Sheets');
+        console.log('📊 Order added to Google Sheets!');
+        console.log('📊 Response status:', response.status);
+        console.log('📊 Updates:', JSON.stringify(response.data?.updates));
         return true;
     } catch (error) {
         console.error('❌ Failed to append to Google Sheets:', error.message);
+        if (error.response?.data) {
+            console.error('❌ API Error:', JSON.stringify(error.response.data));
+        }
+        console.error('❌ Full error:', error);
         return false;
     }
 }
