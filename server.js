@@ -9,11 +9,22 @@ const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = process.env.SHEET_NAME || 'Orders';
 
 const corsOptions = {
-    origin: [
-        'https://kemei-8yz.pages.dev',
-        'http://localhost:8080',
-        'http://localhost:5173'
-    ],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) {
+            return callback(null, true);
+        }
+        // Allow any Cloudflare Pages URL (production + preview)
+        if (origin.endsWith('.pages.dev')) {
+            return callback(null, true);
+        }
+        // Allow localhost for development
+        if (origin.includes('localhost')) {
+            return callback(null, true);
+        }
+        // Block all other origins
+        callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
     credentials: true
