@@ -31,18 +31,32 @@ const CTASection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button variant="cta" size="xl" className="w-full sm:w-auto">
+            <Button
+              variant="cta"
+              size="xl"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                const element = document.getElementById('order-form');
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               <ShoppingCart className="w-6 h-6" />
               اطلب الآن
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            <a
+              href="https://wa.me/218920713379"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <MessageCircle className="w-5 h-5" />
-              تواصل معنا
-            </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                <MessageCircle className="w-5 h-5" />
+                تواصل معنا
+              </Button>
+            </a>
           </div>
 
           {/* Contact info */}
