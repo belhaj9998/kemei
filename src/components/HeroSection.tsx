@@ -75,7 +75,7 @@ const HeroSection = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3001/webhook/order', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/webhook/order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
