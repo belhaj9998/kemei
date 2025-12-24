@@ -69,11 +69,10 @@ const TestimonialsSection = () => {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-5 h-5 ${
-                      i < testimonial.rating
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted-foreground/30"
-                    }`}
+                    className={`w-5 h-5 ${i < testimonial.rating
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-muted-foreground/30"
+                      }`}
                   />
                 ))}
               </div>
@@ -100,7 +99,7 @@ const TestimonialsSection = () => {
         {/* Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center p-6 bg-card rounded-2xl shadow-soft border border-rose-100">
-            <p className="text-3xl md:text-4xl font-black text-gradient mb-2">+500</p>
+            <p className="text-3xl md:text-4xl font-black text-gradient mb-2">+150</p>
             <p className="text-muted-foreground">عميل سعيد</p>
           </div>
           <div className="text-center p-6 bg-card rounded-2xl shadow-soft border border-rose-100">

@@ -158,7 +158,7 @@ const HeroSection = () => {
               </div>
               <div className="flex items-center gap-2 text-foreground">
                 <Zap className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">شحن USB</span>
+                <span className="text-sm font-medium">شحن سريع</span>
               </div>
               <div className="flex items-center gap-2 text-foreground">
                 <Shield className="w-5 h-5 text-primary" />
