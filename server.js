@@ -4,7 +4,6 @@ import { google } from 'googleapis';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const startTime = Date.now();
 
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = process.env.SHEET_NAME || 'Orders';
@@ -27,24 +26,34 @@ let sheets = null;
 let sheetsEnabled = false;
 
 async function initGoogleSheets() {
-    console.log("⚠️ Google Sheets init temporarily disabled for Railway debug");
-    return;
-
     try {
         const credentialsJson = process.env.GOOGLE_CREDENTIALS;
         if (!credentialsJson) {
-            console.log('GOOGLE_CREDENTIALS not set');
+            console.log('GOOGLE_CREDENTIALS not set - Sheets disabled');
             return;
         }
         if (!SPREADSHEET_ID) {
-            console.log('SPREADSHEET_ID not set');
+            console.log('SPREADSHEET_ID not set - Sheets disabled');
             return;
         }
-        const credentials = JSON.parse(credentialsJson);
+
+        let credentials;
+        try {
+            credentials = JSON.parse(credentialsJson);
+        } catch (parseError) {
+            console.error('Failed to parse GOOGLE_CREDENTIALS:', parseError.message);
+            return;
+        }
+
+        if (credentials.private_key) {
+            credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+        }
+
         const auth = new google.auth.GoogleAuth({
             credentials: credentials,
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
+
         const authClient = await auth.getClient();
         sheets = google.sheets({ version: 'v4', auth: authClient });
         sheetsEnabled = true;
@@ -56,6 +65,7 @@ async function initGoogleSheets() {
 
 async function appendToSheet(order) {
     if (!sheetsEnabled || !sheets) return false;
+
     try {
         const formattedDate = new Date(order.event_time).toLocaleString('en-US', {
             year: 'numeric',
@@ -64,6 +74,7 @@ async function appendToSheet(order) {
             hour: '2-digit',
             minute: '2-digit',
         });
+
         const rowData = [
             formattedDate,
             order.name,
@@ -72,6 +83,7 @@ async function appendToSheet(order) {
             'New',
             order.page_url,
         ];
+
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!A:F`,
@@ -79,6 +91,7 @@ async function appendToSheet(order) {
             insertDataOption: 'INSERT_ROWS',
             requestBody: { values: [rowData] },
         });
+
         return true;
     } catch (error) {
         console.error('Sheets append failed:', error.message);
@@ -97,6 +110,7 @@ app.get('/', (req, res) => {
 app.post('/webhook/order', async (req, res) => {
     try {
         const { name, phone, city, page_url, event_time } = req.body;
+
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
             return res.status(400).json({ success: false, error: 'Invalid name' });
         }
@@ -106,6 +120,7 @@ app.post('/webhook/order', async (req, res) => {
         if (!city || typeof city !== 'string' || city.trim().length === 0) {
             return res.status(400).json({ success: false, error: 'Invalid city' });
         }
+
         const order = {
             id: Date.now().toString(),
             name: name.trim(),
@@ -115,8 +130,11 @@ app.post('/webhook/order', async (req, res) => {
             event_time: event_time || new Date().toISOString(),
             received_at: new Date().toISOString()
         };
+
         const sheetAdded = await appendToSheet(order);
-        console.log(`Order ${order.id}: ${order.name} - ${order.city}`);
+
+        console.log(`Order ${order.id}: ${order.name} - ${order.city} [Sheets: ${sheetAdded}]`);
+
         res.status(200).json({
             success: true,
             message: 'Order received',
@@ -133,6 +151,7 @@ async function startServer() {
     await initGoogleSheets();
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT}`);
+        console.log(`Sheets: ${sheetsEnabled ? 'enabled' : 'disabled'}`);
     });
 }
 
